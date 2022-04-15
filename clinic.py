@@ -18,8 +18,11 @@ cursor = db.cursor()
 #sg.change_look_and_feel('BrownBlue')
 sg.change_look_and_feel('DarkTeal9')
 
-patientID = 0
 appointmentID = 0
+
+def popup():
+    sg.popup('SUBMITTED')
+
 def receptionist_form():
     sg.change_look_and_feel('LightBrown9')
     
@@ -48,10 +51,10 @@ def receptionist_form():
             VALUES ('%s', '%s', '%s', '%s')" %\
            (str(values['patientFName']), str(values['patientLName']), str(values['patientID']), str(values['insuranceID']))
         cursor.execute(insert_patient)
-    window.close()
+        db.commit()
+        window.close()
+        popup()
 
-
-receptionist_form()
 
 def doctor_form_window():
     
@@ -101,20 +104,16 @@ def doctor_schedule():
 
 employee_column = [
     [sg.Text("Login As Doctor")],
-    [sg.Input(key='EID')],
-    [sg.Text(size=(40,1), key='-OUTPUT-')],
+    [sg.Input(key='DID', do_not_clear=False)],
     [sg.Text("Login as Nurse")],
-    [sg.Input(key='NID')],
-    [sg.Text(size=(40,1), key='-OUTPUT-')],
+    [sg.Input(key='NID', do_not_clear=False)],
     [sg.Text("Login as Receptionist")],
-    [sg.Input(key='RID')],
-    [sg.Text(size=(40,1), key='-OUTPUT-')]
+    [sg.Input(key='RID', do_not_clear=False)],
 ]
 
 patient_column = [
     [sg.Text("Enter Patient Portal")],
     [sg.Input(key='PID')],
-    [sg.Text(size=(40,1), key='-OUTPUT-')],
     [sg.Button('Ok'), sg.Button('Quit')]
 ]
 
@@ -124,7 +123,7 @@ layout = [
         sg.Column(employee_column),
         sg.VSeperator(),
         sg.Column(patient_column)
-    ],
+    ], [sg.Text(size=(40,1), key='-OUTPUT-')],
 ]
 
 # Create the window
@@ -137,12 +136,26 @@ while True:
     if event == sg.WINDOW_CLOSED or event == 'Quit':
         break
     # Output a message to the window
-    employee_query = "select fname, lname from RECEPTIONIST WHERE employeeID=" + str(values['RID']) + ";"
-    cursor.execute(employee_query)
-    myResult = cursor.fetchall()
-    print(myResult)
-    window['-OUTPUT-'].update('Welcome ' + str(myResult))
-    receptionist_form()
+    
+    if values['DID'] != '':
+        employee_query = "select fname, lname from DOCTOR WHERE employeeID=" + str(values['DID']) + ";"
+        cursor.execute(employee_query)
+        myResult = cursor.fetchall()
+        print(myResult)
+        window['-OUTPUT-'].update('Welcome Dr: ' + str(myResult))
+        receptionist_form()
+    if values['NID'] != '':
+        employee_query = "select fname, lname from NURSE WHERE employeeID=" + str(values['NID']) + ";"
+        cursor.execute(employee_query)
+        myResult = cursor.fetchall()
+        print(myResult)
+        window['-OUTPUT-'].update('Welcome Nurse:' + str(myResult))
+    if values['RID'] != '':
+        employee_query = "select fname, lname from RECEPTIONIST WHERE employeeID=" + str(values['RID']) + ";"
+        cursor.execute(employee_query)
+        myResult = cursor.fetchall()
+        print(myResult)
+        window['-OUTPUT-'].update('Welcome Receptionist' + str(myResult))
 
 
 
