@@ -1,4 +1,5 @@
 import mysql.connector
+import datetime
 import PySimpleGUI as sg
 
 
@@ -17,31 +18,41 @@ cursor = db.cursor()
 #sg.change_look_and_feel('BrownBlue')
 sg.change_look_and_feel('DarkTeal9')
 
+patientID = 0
+appointmentID = 0
 def receptionist_form():
     sg.change_look_and_feel('LightBrown9')
-    layout = [
-        [sg.Text("Enter Employee Portal")]
-    ]
-
-    window = sg.Window('Doctor Evaluation Form', layout, modal=True)
-    print("yeys")
-    window.close()
-    # All the stuff inside your window. This is the PSG magic code compactor...
-    layout = [  [sg.Text('Dr blah blah blah examining blah blah')],
-        [sg.Text("Diagnosis Code"), sg.Input(key='EID'), sg.Text(size=(40,1), key='-OUTPUT-')],
-        [sg.Text("End Time"), sg.Input(key='EID'), sg.Text(size=(40,1), key='-OUTPUT-')],
-        [sg.Text("Doctor Notes"), sg.Input(key='EID'), sg.Text(size=(40,1), key='-OUTPUT-')]
+    
+    layout = [  [sg.Text('Add New Patient')],
+        [sg.Text("Patient First Name"), sg.Input(key='patientFName'), sg.Text(size=(40,2))],
+        [sg.Text("Patient Last Name"), sg.Input(key='patientLName'), sg.Text(size=(40,2))],
+        [sg.Text("Patient ID"), sg.Input(key='patientID'), sg.Text(size=(40,2))],
+        [sg.Text("Patient Date of Birth"), sg.Input(key='patientDOB'), sg.Text(size=(40,2))],
+        [sg.Text("Patient Insurance ID"), sg.Input(key='insuranceID'), sg.Text(size=(40,2))],
+        [sg.Text("Nurse ID"), sg.Input(key='nurseID'), sg.Text(size=(40,2))],
+        [sg.Text("Doctor ID"), sg.Input(key='doctorID'), sg.Text(size=(40,2))],
+        [sg.Text("Current Time"), sg.Input(key='startTime'), sg.Text(size=(40,2))],
+        [sg.Text("Reason For Visit"), sg.Input(key='reason'), sg.Text(size=(40,2))],
+        [sg.Button('SUBMIT')]
     ]
 
     # Create the Window
-    window = sg.Window('Doctor_Form', layout, size=(500,600))
+    window = sg.Window('New Patient Form', layout, size=(500,500))
     # Event Loop to process "events"
     while True:             
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
-
+        print("submitted")
+        insert_patient = "INSERT INTO PATIENT (fname, lname, patientID, insuranceID)\
+            VALUES ('%s', '%s', '%s', '%s')" %\
+           (str(values['patientFName']), str(values['patientLName']), str(values['patientID']), str(values['insuranceID']))
+        cursor.execute(insert_patient)
     window.close()
+
+
+receptionist_form()
+
 def doctor_form_window():
     
     # All the stuff inside your window. This is the PSG magic code compactor...
@@ -131,7 +142,7 @@ while True:
     myResult = cursor.fetchall()
     print(myResult)
     window['-OUTPUT-'].update('Welcome ' + str(myResult))
-    doctor_form_window()
+    receptionist_form()
 
 
 
