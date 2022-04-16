@@ -63,7 +63,8 @@ def doctor_form_window():
         [sg.Text("Appointment ID"), sg.Input(key='apptID'), sg.Text(size=(40,1))],
         [sg.Text("End Time"), sg.Input(key='end_time'), sg.Text(size=(40,1))],
         [sg.Text("Doctor Notes"), sg.Input(key='EID'), sg.Text(size=(40,1))],
-        [sg.Button('End Appointment')]
+        [sg.Text("Diagnosis Code"), sg.Input(key='EID', do_not_clear=False), sg.Text(size=(40,1))],
+        [sg.Button('Add Additional Diagnosis'), sg.Button('End Appointment')]
     ]
 
     # Create the Window
@@ -182,8 +183,6 @@ def nurse_form_window():
         [sg.Text("Nurse's Notes"), sg.Input(key='EID'), sg.Text(size=(40,1))],
         [sg.Button('End Appointment')]
     ]
-
-
 
     # Create the Window
     window = sg.Window('Nurse_Form', layout, size=(500,600))
