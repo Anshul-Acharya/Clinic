@@ -14,9 +14,8 @@ cursor = db.cursor()
 
 #mycursor.execute("select fname from DOCTOR WHERE employeeID=123456799")
 
-#sg.change_look_and_feel('LightBrown9')
-#sg.change_look_and_feel('BrownBlue')
-sg.change_look_and_feel('DarkTeal9')
+#sg.change_look_and_feel('DarkTeal9')
+sg.change_look_and_feel('GreenMono')
 
 appointmentID = 0
 
@@ -61,9 +60,10 @@ def doctor_form_window():
     
     # All the stuff inside your window. This is the PSG magic code compactor...
     layout = [  [sg.Text('Dr blah blah blah examining blah blah')],
-        [sg.Text("Diagnosis Code"), sg.Input(key='EID'), sg.Text(size=(40,1), key='-OUTPUT-')],
-        [sg.Text("End Time"), sg.Input(key='EID'), sg.Text(size=(40,1), key='-OUTPUT-')],
-        [sg.Text("Doctor Notes"), sg.Input(key='EID'), sg.Text(size=(40,1), key='-OUTPUT-')]
+        [sg.Text("Appointment ID"), sg.Input(key='apptID'), sg.Text(size=(40,1))],
+        [sg.Text("End Time"), sg.Input(key='end_time'), sg.Text(size=(40,1))],
+        [sg.Text("Doctor Notes"), sg.Input(key='EID'), sg.Text(size=(40,1))],
+        [sg.Button('End Appointment')]
     ]
 
     # Create the Window
@@ -74,31 +74,21 @@ def doctor_form_window():
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
 
-    window.close()
+        end_visit = "UPDATE APPOINTMENT SET end_time = " + str(values['end_time']) +" WHERE appointmentID = " + str(values['apptID']) + ";"
+        print(str(values['end_time']))
+        cursor.execute(end_visit)
+        db.commit()
 
-employee_column = [
-    [sg.Text("Login As Doctor")],
-    [sg.Input(key='DID', do_not_clear=False)],
-    [sg.Text("Login as Nurse")],
-    [sg.Input(key='NID', do_not_clear=False)],
-    [sg.Text("Login as Receptionist")],
-    [sg.Input(key='RID', do_not_clear=False)],
-]
+        window.close()
+        doctor_schedule()
 
-patient_column = [
-    [sg.Text("Enter Patient Portal")],
-    [sg.Input(key='PID')],
-    [sg.Button('Ok'), sg.Button('Quit')]
-]
-
-#not done
 def doctor_schedule():
 
     schedule_array = [[]]
 
     headings = ["appointmentID", "fname", "lname", "start_time", "room", "reason_for_visit"]
 
-    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT;"
+    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT WHERE end_time is NULL;"
 
     cursor.execute(schedule)
     myResult = cursor.fetchall()
@@ -129,7 +119,100 @@ def doctor_schedule():
         if event == sg.WINDOW_CLOSED or event == 'Quit':
             break
         doctor_form_window()
-    window.close()
+        window.close()
+
+def nurse_schedule():
+
+    schedule_array = [[]]
+
+    headings = ["appointmentID", "fname", "lname", "start_time", "room", "reason_for_visit"]
+
+    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT WHERE end_time is NULL;"
+
+    cursor.execute(schedule)
+    myResult = cursor.fetchall()
+
+    for i in myResult:
+        schedule_array.append(list(i))
+
+    print("shit")
+
+    layout = [
+        [sg.Table(values=schedule_array,
+            headings=headings, 
+            max_col_width=50,
+            auto_size_columns=True,
+            display_row_numbers=True,
+            justification='right',
+            num_rows=10,
+            key='TABLE',
+            row_height=35)],
+        [sg.Button('Begin Appointment')]
+    ]
+
+    window = sg.Window("Nurse Schedule", layout)
+
+    while True:
+        event, values = window.read()
+        # See if user wants to quit or window was closed
+        if event == sg.WINDOW_CLOSED or event == 'Quit':
+            break
+        nurse_form_window()
+        window.close()
+
+#not done
+def nurse_form_window():
+    
+    doctor_array = [[]]
+
+    doctors = "SELECT fname, lname FROM DOCTOR;"
+    cursor.execute(doctors)
+    myResult = cursor.fetchall()
+
+    for i in myResult:
+        doctor_array.append(list(i))
+
+    # All the stuff inside your window. This is the PSG magic code compactor...
+    layout = [  
+        [sg.Text("Appointment ID"), sg.Input(key='apptID'), sg.Text(size=(40,1))],
+        [sg.Text("Assign Doctor"), sg.Combo(doctor_array)],
+        [sg.Text("Height"),  sg.Input(key='apptID'), sg.Text(size=(40,1))],
+        [sg.Text("Weight"),  sg.Input(key='apptID'),sg.Text(size=(40,1))],
+        [sg.Text("Blood Pressure"),  sg.Input(key='apptID'),sg.Text(size=(40,1))],
+        [sg.Text("Nurse's Notes"), sg.Input(key='EID'), sg.Text(size=(40,1))],
+        [sg.Button('End Appointment')]
+    ]
+
+    # Create the Window
+    window = sg.Window('Nurse_Form', layout, size=(500,600))
+    # Event Loop to process "events"
+    while True:             
+        event, values = window.read()
+        if event in (sg.WIN_CLOSED, 'Cancel'):
+            break
+
+        print(str(values['end_time']))
+        cursor.execute(end_visit)
+        db.commit()
+
+        window.close()
+        doctor_schedule()
+
+
+employee_column = [
+    [sg.Text("Login As Doctor")],
+    [sg.Input(key='DID', do_not_clear=False)],
+    [sg.Text("Login as Nurse")],
+    [sg.Input(key='NID', do_not_clear=False)],
+    [sg.Text("Login as Receptionist")],
+    [sg.Input(key='RID', do_not_clear=False)],
+]
+
+patient_column = [
+    [sg.Text("Enter Patient Portal")],
+    [sg.Input(key='PID')],
+    [sg.Button('Ok'), sg.Button('Quit')]
+]
 
 
     
@@ -172,6 +255,7 @@ while True:
         if myResult: 
             print(myResult)
             window['-OUTPUT-'].update('Welcome Nurse:' + str(myResult))
+            nurse_schedule()
         else: 
             window['-OUTPUT-'].update('Invalid Login')
     if values['RID'] != '':
