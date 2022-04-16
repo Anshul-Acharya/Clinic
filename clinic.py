@@ -64,7 +64,8 @@ def doctor_form_window():
         [sg.Text("End Time"), sg.Input(key='end_time'), sg.Text(size=(40,1))],
         [sg.Text("Doctor Notes"), sg.Input(key='EID'), sg.Text(size=(40,1))],
         [sg.Text("Diagnosis Code"), sg.Input(key='EID', do_not_clear=False), sg.Text(size=(40,1))],
-        [sg.Button('Add Additional Diagnosis'), sg.Button('End Appointment')]
+        [sg.Button('Add Additional Diagnosis'), sg.Button('End Appointment')],
+        [sg.Text("Dr Signature"), sg.Checkbox('')]
     ]
 
     # Create the Window
@@ -104,7 +105,7 @@ def doctor_schedule():
             headings=headings, 
             max_col_width=50,
             auto_size_columns=True,
-            display_row_numbers=True,
+            display_row_numbers=False,
             justification='right',
             num_rows=10,
             key='TABLE',
@@ -143,7 +144,7 @@ def nurse_schedule():
             headings=headings, 
             max_col_width=50,
             auto_size_columns=True,
-            display_row_numbers=True,
+            display_row_numbers=False,
             justification='right',
             num_rows=10,
             key='TABLE',
@@ -161,7 +162,6 @@ def nurse_schedule():
         nurse_form_window()
         window.close()
 
-#not done
 def nurse_form_window():
     
     doctor_array = [[]]
@@ -199,6 +199,43 @@ def nurse_form_window():
         db.commit()
         window.close()
 
+def patient_portal():
+
+    schedule_array = [[]]
+
+    headings = ["AppointmentID", "Diagnosis Description", "Medication", "Dr's Notes"]
+
+    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT;"
+
+    cursor.execute(schedule)
+    myResult = cursor.fetchall()
+
+    for i in myResult:
+        schedule_array.append(list(i))
+
+    print("shit")
+
+    layout = [
+        [sg.Table(values=schedule_array,
+            headings=headings, 
+            max_col_width=50,
+            auto_size_columns=True,
+            display_row_numbers=False,
+            justification='right',
+            num_rows=10,
+            key='TABLE',
+            row_height=35)],
+        [sg.Button('Exit')]
+    ]
+
+    window = sg.Window("Patient Portal", layout)
+
+    while True:
+        event, values = window.read()
+        # See if user wants to quit or window was closed
+        if event == sg.WINDOW_CLOSED or event == 'Quit':
+            break
+        window.close()
 
 employee_column = [
     [sg.Text("Login As Doctor")],
@@ -211,7 +248,7 @@ employee_column = [
 
 patient_column = [
     [sg.Text("Enter Patient Portal")],
-    [sg.Input(key='PID')],
+    [sg.Input(key='PID', do_not_clear=False)],
     [sg.Button('Ok'), sg.Button('Quit')]
 ]
 
@@ -277,7 +314,7 @@ while True:
             print(myResult)
             window['-OUTPUT-'].update('Welcome Valued Patient: ' + str(myResult))
             #patientport goes under
-            receptionist_form()
+            patient_portal()
         else: 
             window['-OUTPUT-'].update('Invalid Login')
 
