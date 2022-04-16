@@ -88,7 +88,7 @@ def doctor_schedule():
 
     headings = ["appointmentID", "fname", "lname", "start_time", "room", "reason_for_visit"]
 
-    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT WHERE end_time is NULL;"
+    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT WHERE end_time is NULL AND doctorID is NULL;"
 
     cursor.execute(schedule)
     myResult = cursor.fetchall()
@@ -165,7 +165,7 @@ def nurse_form_window():
     
     doctor_array = [[]]
 
-    doctors = "SELECT fname, lname FROM DOCTOR;"
+    doctors = "SELECT fname, lname, employeeID FROM DOCTOR;"
     cursor.execute(doctors)
     myResult = cursor.fetchall()
 
@@ -175,7 +175,7 @@ def nurse_form_window():
     # All the stuff inside your window. This is the PSG magic code compactor...
     layout = [  
         [sg.Text("Appointment ID"), sg.Input(key='apptID'), sg.Text(size=(40,1))],
-        [sg.Text("Assign Doctor"), sg.Combo(doctor_array)],
+        [sg.Text("Assign Doctor"), sg.Combo(doctor_array),sg.Input(key='assignedDoctor')],
         [sg.Text("Height"),  sg.Input(key='apptID'), sg.Text(size=(40,1))],
         [sg.Text("Weight"),  sg.Input(key='apptID'),sg.Text(size=(40,1))],
         [sg.Text("Blood Pressure"),  sg.Input(key='apptID'),sg.Text(size=(40,1))],
@@ -183,20 +183,22 @@ def nurse_form_window():
         [sg.Button('End Appointment')]
     ]
 
+
+
     # Create the Window
     window = sg.Window('Nurse_Form', layout, size=(500,600))
     # Event Loop to process "events"
     while True:             
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Cancel'):
+            nurse_schedule()
             break
-
-        print(str(values['end_time']))
+        nurse_schedule()
+        print(str(values['apptID']))
+        end_visit = "UPDATE APPOINTMENT SET doctorID = " + str(values['assignedDoctor']) +" WHERE appointmentID = " + str(values['apptID']) + ";"
         cursor.execute(end_visit)
         db.commit()
-
         window.close()
-        doctor_schedule()
 
 
 employee_column = [
