@@ -56,6 +56,7 @@ def receptionist_form():
         popup()
 
 
+#not done
 def doctor_form_window():
     
     # All the stuff inside your window. This is the PSG magic code compactor...
@@ -74,33 +75,6 @@ def doctor_form_window():
             break
 
     window.close()
-    
-def doctor_schedule():
-    sg.change_look_and_feel('LightBrown5')
-    layout = [
-        [sg.Text("Enter Employee Portal")]
-    ]
-
-    window = sg.Window('Doctor Evaluation Form', layout, modal=True)
-    print("yeys")
-    window.close()
-    # All the stuff inside your window. This is the PSG magic code compactor...
-    layout = [  [sg.Text('Dr blah blah blah examining blah blah')],
-        [sg.Text("Diagnosis Code"), sg.Input(key='EID'), sg.Text(size=(40,1), key='-OUTPUT-')],
-        [sg.Text("End Time"), sg.Input(key='EID'), sg.Text(size=(40,1), key='-OUTPUT-')],
-        [sg.Text("Doctor Notes"), sg.Input(key='EID'), sg.Text(size=(40,1), key='-OUTPUT-')]
-    ]
-
-    # Create the Window
-    window = sg.Window('Doctor_Form', layout, size=(500,600))
-    # Event Loop to process "events"
-    while True:             
-        event, values = window.read()
-        if event in (sg.WIN_CLOSED, 'Cancel'):
-            break
-
-    window.close()
-
 
 employee_column = [
     [sg.Text("Login As Doctor")],
@@ -116,6 +90,50 @@ patient_column = [
     [sg.Input(key='PID')],
     [sg.Button('Ok'), sg.Button('Quit')]
 ]
+
+#not done
+def doctor_schedule():
+
+    schedule_array = [[]]
+
+    headings = ["appointmentID", "fname", "lname", "start_time", "room", "reason_for_visit"]
+
+    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT;"
+
+    cursor.execute(schedule)
+    myResult = cursor.fetchall()
+
+    for i in myResult:
+        schedule_array.append(list(i))
+
+    print("shit")
+
+    layout = [
+        [sg.Table(values=schedule_array,
+            headings=headings, 
+            max_col_width=50,
+            auto_size_columns=True,
+            display_row_numbers=True,
+            justification='right',
+            num_rows=10,
+            key='TABLE',
+            row_height=35)],
+        [sg.Button('Begin Appointment')]
+    ]
+
+    window = sg.Window("Doctor Schedule", layout)
+
+    while True:
+        event, values = window.read()
+        # See if user wants to quit or window was closed
+        if event == sg.WINDOW_CLOSED or event == 'Quit':
+            break
+        doctor_form_window()
+    window.close()
+
+
+    
+
 
 # Define the window's contents
 layout = [
@@ -141,22 +159,42 @@ while True:
         employee_query = "select fname, lname from DOCTOR WHERE employeeID=" + str(values['DID']) + ";"
         cursor.execute(employee_query)
         myResult = cursor.fetchall()
-        print(myResult)
-        window['-OUTPUT-'].update('Welcome Dr: ' + str(myResult))
-        receptionist_form()
+        if myResult:
+            print(myResult)
+            window['-OUTPUT-'].update('Welcome Dr: ' + str(myResult))
+            doctor_schedule()
+        else: 
+            window['-OUTPUT-'].update('Invalid Login')
     if values['NID'] != '':
         employee_query = "select fname, lname from NURSE WHERE employeeID=" + str(values['NID']) + ";"
         cursor.execute(employee_query)
         myResult = cursor.fetchall()
-        print(myResult)
-        window['-OUTPUT-'].update('Welcome Nurse:' + str(myResult))
+        if myResult: 
+            print(myResult)
+            window['-OUTPUT-'].update('Welcome Nurse:' + str(myResult))
+        else: 
+            window['-OUTPUT-'].update('Invalid Login')
     if values['RID'] != '':
         employee_query = "select fname, lname from RECEPTIONIST WHERE employeeID=" + str(values['RID']) + ";"
         cursor.execute(employee_query)
         myResult = cursor.fetchall()
-        print(myResult)
-        window['-OUTPUT-'].update('Welcome Receptionist' + str(myResult))
-
+        if myResult:
+            print(myResult)
+            window['-OUTPUT-'].update('Welcome Receptionist' + str(myResult))
+            receptionist_form()
+        else: 
+            window['-OUTPUT-'].update('Invalid Login')
+    if values['PID'] != '':
+        patient_query = "select fname, lname from PATIENT WHERE patientID=" + str(values['PID']) + ";"
+        cursor.execute(patient_query)
+        myResult = cursor.fetchall()
+        if myResult:
+            print(myResult)
+            window['-OUTPUT-'].update('Welcome Valued Patient: ' + str(myResult))
+            #patientport goes under
+            receptionist_form()
+        else: 
+            window['-OUTPUT-'].update('Invalid Login')
 
 
 # Finish up by removing from the screen
