@@ -4,27 +4,30 @@ CREATE DATABASE Clinic;
 USE Clinic;
 
 
-DROP TABLE IF EXISTS DOCTOR;
-CREATE TABLE DOCTOR (
+DROP TABLE IF EXISTS EMPLOYEE;
+CREATE TABLE EMPLOYEE (
 
 
   fname    varchar(15) not null,
   lname    varchar(15) not null,
-  employeeID     char(9),
+  employeeID     INT(9) not null),
   bdate    date,
   phone_number varchar(15),
+
+  CONSTRAINT pk_employeeID primary key (employeeID)
+);
+
+DROP TABLE IF EXISTS DOCTOR;
+CREATE TABLE DOCTOR (
+  employeeID     char(9),
   specialty varchar(9),
 
-  CONSTRAINT pk_doctor primary key (employeeID)
+  CONSTRAINT pk_doctorID primary key (employeeID)
 );
 
 DROP TABLE IF EXISTS NURSE;
 CREATE TABLE NURSE (
-  fname    varchar(15) not null,
-  lname    varchar(15) not null,
   employeeID     char(9),
-  bdate    date,
-  phone_number varchar(15),
   room int,
 
   CONSTRAINT pk_nurse primary key (employeeID)
@@ -32,11 +35,7 @@ CREATE TABLE NURSE (
 
 DROP TABLE IF EXISTS RECEPTIONIST;
 CREATE TABLE RECEPTIONIST (
-  fname    varchar(15) not null,
-  lname    varchar(15) not null,
   employeeID     char(9),
-  bdate    date,
-  phone_number varchar(15),
 
   CONSTRAINT pk_receptionist primary key (employeeID)
 );
@@ -129,6 +128,7 @@ CREATE TABLE APPOINTMENT_DIAGNOSIS_MEDICATION(
 -- Insert all records
 INSERT INTO DOCTOR VALUES ('Bill','Rogers','123456789','1979-05-22', '911', 'gp');
 INSERT INTO DOCTOR VALUES ('Ed','Sproat','123456799','1999-05-22', '911', 'ent');
+INSERT INTO DOCTOR VALUES ('Eder','Sproat','123456799','1999-05-22', '911', 'ent');
 
 INSERT INTO NURSE VALUES ('Bill','Rogers','123456779','1979-05-22', '911', '69');
 INSERT INTO NURSE VALUES ('Ed','Sproat','123456799','1999-05-22', '911', '420');

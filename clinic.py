@@ -28,11 +28,9 @@ def receptionist_form():
     layout = [  [sg.Text('Add New Patient')],
         [sg.Text("Patient First Name"), sg.Input(key='patientFName'), sg.Text(size=(40,2))],
         [sg.Text("Patient Last Name"), sg.Input(key='patientLName'), sg.Text(size=(40,2))],
-        [sg.Text("Patient ID"), sg.Input(key='patientID'), sg.Text(size=(40,2))],
         [sg.Text("Patient Date of Birth"), sg.Input(key='patientDOB'), sg.Text(size=(40,2))],
         [sg.Text("Patient Insurance ID"), sg.Input(key='insuranceID'), sg.Text(size=(40,2))],
-        [sg.Text("Nurse ID"), sg.Input(key='nurseID'), sg.Text(size=(40,2))],
-        [sg.Text("Doctor ID"), sg.Input(key='doctorID'), sg.Text(size=(40,2))],
+        [sg.Text("Room"), sg.Input(key='nurseID'), sg.Text(size=(40,2))],
         [sg.Text("Current Time"), sg.Input(key='startTime'), sg.Text(size=(40,2))],
         [sg.Text("Reason For Visit"), sg.Input(key='reason'), sg.Text(size=(40,2))],
         [sg.Button('SUBMIT')]
@@ -46,9 +44,9 @@ def receptionist_form():
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
         print("submitted")
-        insert_patient = "INSERT INTO PATIENT (fname, lname, patientID, insuranceID)\
-            VALUES ('%s', '%s', '%s', '%s')" %\
-           (str(values['patientFName']), str(values['patientLName']), str(values['patientID']), str(values['insuranceID']))
+        insert_patient = "INSERT INTO PATIENT (fname, lname, insuranceID)\
+            VALUES ('%s', '%s', '%s')" %\
+           (str(values['patientFName']), str(values['patientLName']), str(values['insuranceID']))
         cursor.execute(insert_patient)
         db.commit()
         window.close()
@@ -199,7 +197,7 @@ def nurse_form_window():
         db.commit()
         window.close()
 
-def patient_portal():
+def patient_history():
 
     schedule_array = [[]]
 
@@ -225,7 +223,7 @@ def patient_portal():
             num_rows=10,
             key='TABLE',
             row_height=35)],
-        [sg.Button('Exit')]
+        [sg.Button('View And Pay Bill'), sg.Exit()]
     ]
 
     window = sg.Window("Patient Portal", layout)
@@ -233,9 +231,14 @@ def patient_portal():
     while True:
         event, values = window.read()
         # See if user wants to quit or window was closed
-        if event == sg.WINDOW_CLOSED or event == 'Quit':
+        if event == sg.WINDOW_CLOSED or event == 'Exit':
+            print("Exited Patient")
+            window.close()
             break
-        window.close()
+        if event == 'View And Pay Bill':
+            print("view and pay bill")
+            popup()
+
 
 employee_column = [
     [sg.Text("Login As Doctor")],
@@ -277,7 +280,7 @@ while True:
     # Output a message to the window
     
     if values['DID'] != '':
-        employee_query = "select fname, lname from DOCTOR WHERE employeeID=" + str(values['DID']) + ";"
+        employee_query = "select fname, lname from EMPLOYEE WHERE employeeID = " + str(values['DID']) + ";"
         cursor.execute(employee_query)
         myResult = cursor.fetchall()
         if myResult:
@@ -287,7 +290,7 @@ while True:
         else: 
             window['-OUTPUT-'].update('Invalid Login')
     if values['NID'] != '':
-        employee_query = "select fname, lname from NURSE WHERE employeeID=" + str(values['NID']) + ";"
+        employee_query = "select fname, lname from EMPLOYEE WHERE employeeID=" + str(values['NID']) + ";"
         cursor.execute(employee_query)
         myResult = cursor.fetchall()
         if myResult: 
@@ -297,7 +300,7 @@ while True:
         else: 
             window['-OUTPUT-'].update('Invalid Login')
     if values['RID'] != '':
-        employee_query = "select fname, lname from RECEPTIONIST WHERE employeeID=" + str(values['RID']) + ";"
+        employee_query = "select fname, lname from EMPLOYEE WHERE employeeID=" + str(values['RID']) + ";"
         cursor.execute(employee_query)
         myResult = cursor.fetchall()
         if myResult:
@@ -314,7 +317,7 @@ while True:
             print(myResult)
             window['-OUTPUT-'].update('Welcome Valued Patient: ' + str(myResult))
             #patientport goes under
-            patient_portal()
+            patient_history()
         else: 
             window['-OUTPUT-'].update('Invalid Login')
 
