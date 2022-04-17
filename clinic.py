@@ -23,6 +23,7 @@ def popup():
     sg.popup('SUBMITTED')
 
 def receptionist_form():
+    print("OK")
     sg.change_look_and_feel('LightBrown9')
     
     layout = [  [sg.Text('Add New Patient')],
@@ -55,7 +56,8 @@ def receptionist_form():
 
 #not done
 def doctor_form_window():
-    
+
+    print("form") 
     # All the stuff inside your window. This is the PSG magic code compactor...
     layout = [  [sg.Text('Dr blah blah blah examining blah blah')],
         [sg.Text("Appointment ID"), sg.Input(key='apptID'), sg.Text(size=(40,1))],
@@ -71,16 +73,17 @@ def doctor_form_window():
     # Event Loop to process "events"
     while True:             
         event, values = window.read()
-        if event in (sg.WIN_CLOSED, 'Cancel'):
+        if event == sg.WINDOW_CLOSED:
             break
 
-        end_visit = "UPDATE APPOINTMENT SET end_time = " + str(values['end_time']) +" WHERE appointmentID = " + str(values['apptID']) + ";"
-        print(str(values['end_time']))
-        cursor.execute(end_visit)
-        db.commit()
+        if event == 'End Appointment':
+            end_visit = "UPDATE APPOINTMENT SET end_time = " + str(values['end_time']) +" WHERE appointmentID = " + str(values['apptID']) + ";"
+            cursor.execute(end_visit)
+            db.commit()
+            window.close()
+            doctor_schedule()
 
-        window.close()
-        doctor_schedule()
+        
 
 def doctor_schedule():
 
@@ -88,7 +91,8 @@ def doctor_schedule():
 
     headings = ["appointmentID", "fname", "lname", "start_time", "room", "reason_for_visit"]
 
-    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT WHERE end_time is NULL AND doctorID is NULL;"
+    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT WHERE end_time is NULL;"
+    db.commit()
 
     cursor.execute(schedule)
     myResult = cursor.fetchall()
@@ -111,15 +115,15 @@ def doctor_schedule():
         [sg.Button('Begin Appointment')]
     ]
 
-    window = sg.Window("Doctor Schedule", layout)
+    ds_window = sg.Window("Doctor Schedule", layout)
 
     while True:
-        event, values = window.read()
+        event, values = ds_window.read()
         # See if user wants to quit or window was closed
         if event == sg.WINDOW_CLOSED or event == 'Quit':
             break
         doctor_form_window()
-        window.close()
+        ds_window.close()
 
 def nurse_schedule():
 
@@ -127,7 +131,7 @@ def nurse_schedule():
 
     headings = ["appointmentID", "fname", "lname", "start_time", "room", "reason_for_visit"]
 
-    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT WHERE end_time is NULL;"
+    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT WHERE end_time is NULL AND doctorID is NULL;"
 
     cursor.execute(schedule)
     myResult = cursor.fetchall()
@@ -157,16 +161,18 @@ def nurse_schedule():
         # See if user wants to quit or window was closed
         if event == sg.WINDOW_CLOSED or event == 'Quit':
             break
+        print("nurse")
         nurse_form_window()
         window.close()
 
 def nurse_form_window():
-    
+    print("form") 
     doctor_array = [[]]
 
-    doctors = "SELECT fname, lname, employeeID FROM DOCTOR;"
+    doctors = "SELECT fname, lname, employeeID FROM EMPLOYEE WHERE job_title = 'doctor';"
     cursor.execute(doctors)
     myResult = cursor.fetchall()
+    db.commit()
 
     for i in myResult:
         doctor_array.append(list(i))
@@ -241,12 +247,8 @@ def patient_history():
 
 
 employee_column = [
-    [sg.Text("Login As Doctor")],
-    [sg.Input(key='DID', do_not_clear=False)],
-    [sg.Text("Login as Nurse")],
-    [sg.Input(key='NID', do_not_clear=False)],
-    [sg.Text("Login as Receptionist")],
-    [sg.Input(key='RID', do_not_clear=False)],
+    [sg.Text("Login As Employee")],
+    [sg.Input(key='EID', do_not_clear=False)],
 ]
 
 patient_column = [
@@ -254,10 +256,6 @@ patient_column = [
     [sg.Input(key='PID', do_not_clear=False)],
     [sg.Button('Ok'), sg.Button('Quit')]
 ]
-
-
-    
-
 
 # Define the window's contents
 layout = [
@@ -278,37 +276,28 @@ while True:
     if event == sg.WINDOW_CLOSED or event == 'Quit':
         break
     # Output a message to the window
-    
-    if values['DID'] != '':
-        employee_query = "select fname, lname from EMPLOYEE WHERE employeeID = " + str(values['DID']) + ";"
+
+    if event == 'Ok':
+        employee_query = "select job_title from EMPLOYEE WHERE employeeID = " + str(values['EID']) + ";"
         cursor.execute(employee_query)
-        myResult = cursor.fetchall()
-        if myResult:
-            print(myResult)
-            window['-OUTPUT-'].update('Welcome Dr: ' + str(myResult))
+        myResult = cursor.fetchone()
+        
+
+        if myResult[0] == "doctor":
             doctor_schedule()
-        else: 
-            window['-OUTPUT-'].update('Invalid Login')
-    if values['NID'] != '':
-        employee_query = "select fname, lname from EMPLOYEE WHERE employeeID=" + str(values['NID']) + ";"
-        cursor.execute(employee_query)
-        myResult = cursor.fetchall()
-        if myResult: 
-            print(myResult)
-            window['-OUTPUT-'].update('Welcome Nurse:' + str(myResult))
+            print("GOOD")
+        elif myResult[0] == "nurse":
             nurse_schedule()
-        else: 
-            window['-OUTPUT-'].update('Invalid Login')
-    if values['RID'] != '':
-        employee_query = "select fname, lname from EMPLOYEE WHERE employeeID=" + str(values['RID']) + ";"
-        cursor.execute(employee_query)
-        myResult = cursor.fetchall()
-        if myResult:
-            print(myResult)
-            window['-OUTPUT-'].update('Welcome Receptionist' + str(myResult))
+            break
+            print("nurse")
+        elif myResult[0] == "receptionist":
             receptionist_form()
+            print("r")
         else: 
-            window['-OUTPUT-'].update('Invalid Login')
+            print("fail")
+        #cursor.close()
+
+
     if values['PID'] != '':
         patient_query = "select fname, lname from PATIENT WHERE patientID=" + str(values['PID']) + ";"
         cursor.execute(patient_query)
@@ -324,9 +313,6 @@ while True:
 
 # Finish up by removing from the screen
 window.close()
-
-
-
 
 
 
