@@ -11,6 +11,7 @@ db = mysql.connector.connect(
     )
 
 cursor = db.cursor()
+ID = 0
 
 #mycursor.execute("select fname from DOCTOR WHERE employeeID=123456799")
 
@@ -23,15 +24,13 @@ def popup():
     sg.popup('SUBMITTED')
 
 def receptionist_form():
-    print("OK")
-    sg.change_look_and_feel('LightBrown9')
     
     layout = [  [sg.Text('Add New Patient')],
         [sg.Text("Patient First Name"), sg.Input(key='patientFName'), sg.Text(size=(40,2))],
         [sg.Text("Patient Last Name"), sg.Input(key='patientLName'), sg.Text(size=(40,2))],
         [sg.Text("Patient Date of Birth"), sg.Input(key='patientDOB'), sg.Text(size=(40,2))],
         [sg.Text("Patient Insurance ID"), sg.Input(key='insuranceID'), sg.Text(size=(40,2))],
-        [sg.Text("Room"), sg.Input(key='nurseID'), sg.Text(size=(40,2))],
+        [sg.Text("Room"), sg.Input(key='room'), sg.Text(size=(40,2))],
         [sg.Text("Current Time"), sg.Input(key='startTime'), sg.Text(size=(40,2))],
         [sg.Text("Reason For Visit"), sg.Input(key='reason'), sg.Text(size=(40,2))],
         [sg.Button('SUBMIT')]
@@ -49,6 +48,16 @@ def receptionist_form():
             VALUES ('%s', '%s', '%s')" %\
            (str(values['patientFName']), str(values['patientLName']), str(values['insuranceID']))
         cursor.execute(insert_patient)
+
+        find_appt = "select MAX(patientID) FROM PATIENT"
+        cursor.execute(find_appt)
+        myResult = cursor.fetchone()
+        
+        insert_appt = "INSERT INTO APPOINTMENT (fname, lname, patientID, start_time, room, reason_for_visit)\
+            VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" %\
+           (str(values['patientFName']), str(values['patientLName']), str(myResult[0]), str(values['startTime']), str(values['room']), str(values['reason']))
+        cursor.execute(insert_appt)
+
         db.commit()
         window.close()
         popup()
@@ -69,10 +78,10 @@ def doctor_form_window():
     ]
 
     # Create the Window
-    window = sg.Window('Doctor_Form', layout, size=(500,600))
+    dry_window = sg.Window('Doctor_Form', layout, size=(500,600))
     # Event Loop to process "events"
     while True:             
-        event, values = window.read()
+        event, values = dry_window.read()
         if event == sg.WINDOW_CLOSED:
             break
 
@@ -80,7 +89,7 @@ def doctor_form_window():
             end_visit = "UPDATE APPOINTMENT SET end_time = " + str(values['end_time']) +" WHERE appointmentID = " + str(values['apptID']) + ";"
             cursor.execute(end_visit)
             db.commit()
-            window.close()
+            dry_window.close()
             doctor_schedule()
 
         
@@ -127,11 +136,13 @@ def doctor_schedule():
 
 def nurse_schedule():
 
+    print(ID)
+
     schedule_array = [[]]
 
     headings = ["appointmentID", "fname", "lname", "start_time", "room", "reason_for_visit"]
 
-    schedule = "SELECT appointmentID, fname, lname, start_time, room, reason_for_visit FROM APPOINTMENT WHERE end_time is NULL AND doctorID is NULL;"
+    schedule = "SELECT a.appointmentID, a.fname, a.lname, a.start_time, a.room, a.reason_for_visit FROM APPOINTMENT a INNER JOIN NURSE n ON employeeID=" + ID + " AND n.room=a.room WHERE end_time is NULL;"
 
     cursor.execute(schedule)
     myResult = cursor.fetchall()
@@ -154,16 +165,16 @@ def nurse_schedule():
         [sg.Button('Begin Appointment')]
     ]
 
-    window = sg.Window("Nurse Schedule", layout)
+    n_window = sg.Window("Nurse Schedule", layout)
 
     while True:
-        event, values = window.read()
+        event, values = n_window.read()
         # See if user wants to quit or window was closed
-        if event == sg.WINDOW_CLOSED or event == 'Quit':
+        if event == sg.WIN_CLOSED:
             break
-        print("nurse")
-        nurse_form_window()
-        window.close()
+        if event == 'Begin Appointment':
+            nurse_form_window()
+            n_window.close()
 
 def nurse_form_window():
     print("form") 
@@ -253,8 +264,12 @@ employee_column = [
 
 patient_column = [
     [sg.Text("Enter Patient Portal")],
-    [sg.Input(key='PID', do_not_clear=False)],
-    [sg.Button('Ok'), sg.Button('Quit')]
+    [sg.Input(key='PID', do_not_clear=False)]
+]
+
+button_column = [
+    [sg.Button('Enter'), sg.Button(' Quit')],
+    [sg.Text(size=(40,1), key='-OUTPUT-')]
 ]
 
 # Define the window's contents
@@ -263,7 +278,7 @@ layout = [
         sg.Column(employee_column),
         sg.VSeperator(),
         sg.Column(patient_column)
-    ], [sg.Text(size=(40,1), key='-OUTPUT-')],
+    ], [sg.VPush(), sg.Column(button_column, element_justification='c'), sg.Push()] 
 ]
 
 # Create the window
@@ -273,7 +288,7 @@ window = sg.Window('LOGIN', layout, margins=(20,100))
 while True:
     event, values = window.read()
     # See if user wants to quit or window was closed
-    if event == sg.WINDOW_CLOSED or event == 'Quit':
+    if event == sg.WINDOW_CLOSED or event == ' Quit':
         break
     # Output a message to the window
 
@@ -282,13 +297,13 @@ while True:
         cursor.execute(employee_query)
         myResult = cursor.fetchone()
         
+        ID = values['EID']
 
         if myResult[0] == "doctor":
             doctor_schedule()
             print("GOOD")
         elif myResult[0] == "nurse":
             nurse_schedule()
-            break
             print("nurse")
         elif myResult[0] == "receptionist":
             receptionist_form()
