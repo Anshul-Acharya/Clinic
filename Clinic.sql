@@ -66,6 +66,7 @@ CREATE TABLE APPOINTMENT(
   end_time    time,
   room int,
   reason_for_visit char(50),
+  nurse_notes char(50),
 
   CONSTRAINT pk_appointment primary key (appointmentID)
 );
@@ -83,7 +84,7 @@ CREATE TABLE APPOINTMENT_DIAGNOSIS(
 
 DROP TABLE IF EXISTS DIAGNOSIS;
 CREATE TABLE DIAGNOSIS(
-  diagnosis_code      INT(9) not null AUTO_INCREMENT,
+  diagnosis_code  INT(9) not null AUTO_INCREMENT,
   description char(50),
 
   CONSTRAINT pk_diagnosis_code primary key (diagnosis_code)
@@ -91,27 +92,25 @@ CREATE TABLE DIAGNOSIS(
 
 DROP TABLE IF EXISTS MEDICATION;
 CREATE TABLE MEDICATION(
-  medication_code    INT(9) not null AUTO_INCREMENT,
+  medication_code   INT(9) not null AUTO_INCREMENT,
   diagnosis_code     char(9),
   description char(50),
-  cost  double,
-  notes char(50),
 
   CONSTRAINT pk_medication primary key (medication_code)
 );
 
 DROP TABLE IF EXISTS APPOINTMENT_DIAGNOSIS_MEDICATION;
 CREATE TABLE APPOINTMENT_DIAGNOSIS_MEDICATION(
-  appt_medicine     char(9),
-  appointmentID     char(9),
+  appt_medicine     INT(9) not null AUTO_INCREMENT,
+  appointmentID     INt(9),
   diagnosis_code     char(9),
   medication_code     char(9),
 
-  CONSTRAINT pk_appointment primary key (appointmentID)
+  CONSTRAINT pk_appt_med primary key (appt_medicine)
 );
 
-INSERT INTO DOCTOR VALUES ('1234','TITS');
-INSERT INTO DOCTOR VALUES ('3456','ASS');
+INSERT INTO DOCTOR VALUES ('1234','');
+INSERT INTO DOCTOR VALUES ('3456','');
 
 INSERT INTO NURSE VALUES ('5676','69');
 INSERT INTO NURSE VALUES ('3212','69');
@@ -129,11 +128,14 @@ INSERT INTO PATIENT VALUES ('Bi','gers','023456789','1979-05-22', '911');
 INSERT INTO PATIENT VALUES ('Bo','Rers','000000000','1979-05-22', '911');
 INSERT INTO PATIENT VALUES ('Bi','gers','023456788','1979-05-22', '911');
 
-INSERT INTO APPOINTMENT VALUES ('ag', 'dd', '32300', '123456779' , '123456789',null, '2017-08-15 19:30:10', '2017-09-15 19:30:10', '69', 'herpes');
-INSERT INTO APPOINTMENT VALUES ('fssfsf', 'dssdfsf', '990000', '123456779' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes');
-INSERT INTO APPOINTMENT VALUES ('dsfs', 'hello','0100332', '10000000' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes');
-INSERT INTO APPOINTMENT VALUES ('dffgd', 'uwu', '01340', '123456779' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes');
-INSERT INTO APPOINTMENT VALUES ('desu', 'tbh', '5320010', '123456779' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes');
+INSERT INTO PATIENT VALUES ('Edward','Sproat','420','1979-05-22', '911');
+INSERT INTO PATIENT VALUES ('Dylkan','Faj','69','1979-05-22', '911');
+
+INSERT INTO APPOINTMENT VALUES ('a', 'dd', '69', '123456779' , '123456789',null, '2017-08-15 19:30:10', '2017-09-15 19:30:10', '69', 'herpes', null);
+INSERT INTO APPOINTMENT VALUES ('b', 'dssdfsf', '420', '123456779' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes',null);
+INSERT INTO APPOINTMENT VALUES ('c', 'hello','0100332', '10000000' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes', null);
+INSERT INTO APPOINTMENT VALUES ('d', 'uwu', '690', '123456779' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes', null);
+INSERT INTO APPOINTMENT VALUES ('d', 'tbh', '5320010', '123456779' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes', null);
 
 INSERT INTO DIAGNOSIS (description) VALUES
     ('Acid reflux'),
@@ -179,5 +181,19 @@ INSERT INTO DIAGNOSIS (description) VALUES
 
 
 
+INSERT INTO MEDICATION (diagnosis_code, description) VALUES ('1', 'xZANTAC');
+INSERT INTO MEDICATION (diagnosis_code, description) VALUES ('2', 'xxZANTAC');
+INSERT INTO MEDICATION (diagnosis_code, description) VALUES ('3', 'xxxZANTAC');
+INSERT INTO MEDICATION (diagnosis_code, description) VALUES ('4', 'xxxxZANTAC');
+INSERT INTO MEDICATION (diagnosis_code, description) VALUES ('5', 'xxxxxZANTAC');
 
 
+
+SELECT adm.*
+FROM APPOINTMENT a 
+JOIN APPOINTMENT_DIAGNOSIS ad 
+	ON a.appointmentID = ad.appointmentID 
+JOIN APPOINTMENT_DIAGNOSIS_MEDICATION adm 
+	ON ad.appointmentID = adm.appointmentID AND ad.appt_diagnosis_code = adm.diagnosis_code;
+JOIN MEDICATION m 
+	ON m.medication_code = adm.medication_code; 
