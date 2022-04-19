@@ -234,9 +234,19 @@ def patient_history():
 
     history_array = [[]]
 
-    headings = ["AppointmentID", "Diagnosis Description"]
+    headings = ["AppointmentID", "Date", "Diagnosis", "Medication", "Dr's Notes"]
 
-    history = "SELECT a.appointmentID, ad.doctor_notes FROM APPOINTMENT a JOIN APPOINTMENT_DIAGNOSIS ad ON a.appointmentID = ad.appointmentID WHERE a.patientID = '" + str(ID) + "';"
+    history = "SELECT a.patientID, a.start_time, di.description, m.description, ad.doctor_notes  \
+        FROM APPOINTMENT a \
+        JOIN APPOINTMENT_DIAGNOSIS ad \
+	        ON a.appointmentID = ad.appointmentID \
+        JOIN APPOINTMENT_DIAGNOSIS_MEDICATION adm \
+	        ON ad.appointmentID = adm.appointmentID AND ad.appt_diagnosis_code = adm.diagnosis_code \
+        JOIN MEDICATION m \
+	        ON m.medication_code = adm.medication_code \
+        JOIN DIAGNOSIS di \
+	        on adm.diagnosis_code = di.diagnosis_code \
+        WHERE " + ID +  " = a.patientID;"
 
     cursor.execute(history)
     myResult = cursor.fetchall()
@@ -310,25 +320,27 @@ while True:
 
     if event == 'Enter' and values['PID'] == '':
         employee_query = "select job_title from EMPLOYEE WHERE employeeID = " + str(values['EID']) + ";"
-        cursor.execute(employee_query)
-        myResult = cursor.fetchone()
+        try:
+            cursor.execute(employee_query)
+            myResult = cursor.fetchone()
 
-        ID = values['EID']
+            ID = values['EID']
 
-        if myResult[0] == "doctor":
-            doctor_schedule()
-            print("GOOD")
-        elif myResult[0] == "nurse":
-            nurse_schedule()
-            print("nurse")
-        elif myResult[0] == "receptionist":
-            receptionist_form()
-            print("r")
-        else: 
-            print("fail")
-        #cursor.close()
-
-
+            if myResult[0] == "doctor":
+                doctor_schedule()
+                print("GOOD")
+            elif myResult[0] == "nurse":
+                nurse_schedule()
+                print("nurse")
+            elif myResult[0] == "receptionist":
+                receptionist_form()
+                print("r")
+            else: 
+                print("fail")
+            #cursor.close()
+        finally:
+            cursor.close()
+""""
     if values['PID'] != '':
         patient_query = "select fname, lname from PATIENT WHERE patientID=" + str(values['PID']) + ";"
         cursor.execute(patient_query)
@@ -343,7 +355,7 @@ while True:
             patient_history()
         else: 
             window['-OUTPUT-'].update('Invalid Login')
-
+"""
 
 # Finish up by removing from the screen
 window.close()

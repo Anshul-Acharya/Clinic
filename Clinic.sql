@@ -124,9 +124,9 @@ INSERT INTO EMPLOYEE VALUES ('lo','TER','3212','1979-05-22', '911', 'nurse');
 INSERT INTO EMPLOYEE VALUES ('B','OOT','2345','1979-05-22', '911', 'receptionist');
 INSERT INTO EMPLOYEE VALUES ('ilo','SCOOT','3312','1979-05-22', '911', 'receptionist');
 
-INSERT INTO PATIENT VALUES ('Bi','gers','023456789','1979-05-22', '911');
-INSERT INTO PATIENT VALUES ('Bo','Rers','000000000','1979-05-22', '911');
-INSERT INTO PATIENT VALUES ('Bi','gers','023456788','1979-05-22', '911');
+INSERT INTO PATIENT VALUES ('Bi','gers',null,'1979-05-22', '911');
+INSERT INTO PATIENT VALUES ('Bo','Rers',null, '1979-05-22', '911');
+INSERT INTO PATIENT VALUES ('Bi','gers',null,'1979-05-22', '911');
 
 INSERT INTO PATIENT VALUES ('Edward','Sproat','420','1979-05-22', '911');
 INSERT INTO PATIENT VALUES ('Dylkan','Faj','69','1979-05-22', '911');
@@ -189,11 +189,14 @@ INSERT INTO MEDICATION (diagnosis_code, description) VALUES ('5', 'xxxxxZANTAC')
 
 
 
-SELECT adm.*
+SELECT * 
 FROM APPOINTMENT a 
 JOIN APPOINTMENT_DIAGNOSIS ad 
 	ON a.appointmentID = ad.appointmentID 
 JOIN APPOINTMENT_DIAGNOSIS_MEDICATION adm 
-	ON ad.appointmentID = adm.appointmentID AND ad.appt_diagnosis_code = adm.diagnosis_code;
+	ON ad.appointmentID = adm.appointmentID AND ad.appt_diagnosis_code = adm.diagnosis_code
 JOIN MEDICATION m 
-	ON m.medication_code = adm.medication_code; 
+	ON m.medication_code = adm.medication_code 
+JOIN DIAGNOSIS di
+	on adm.diagnosis_code = di.diagnosis_code;
+
