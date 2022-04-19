@@ -109,33 +109,33 @@ CREATE TABLE APPOINTMENT_DIAGNOSIS_MEDICATION(
   CONSTRAINT pk_appt_med primary key (appt_medicine)
 );
 
-INSERT INTO DOCTOR VALUES ('1234','');
-INSERT INTO DOCTOR VALUES ('3456','');
+INSERT INTO DOCTOR VALUES ('1234','gp');
+INSERT INTO DOCTOR VALUES ('3456','gp');
 
-INSERT INTO NURSE VALUES ('5676','69');
-INSERT INTO NURSE VALUES ('3212','69');
+INSERT INTO NURSE VALUES ('5676','1');
+INSERT INTO NURSE VALUES ('3212','2');
 
 INSERT INTO RECEPTIONIST VALUES ('2345');
 
-INSERT INTO EMPLOYEE VALUES ('Bilo','SCOOTER','1234','1979-05-22', '911', 'doctor');
-INSERT INTO EMPLOYEE VALUES ('SCOOTEW','pooR','3456','1979-05-22', '911', 'doctor');
-INSERT INTO EMPLOYEE VALUES ('Nilo','OOTER','5676','1979-05-22', '911', 'nurse');
-INSERT INTO EMPLOYEE VALUES ('lo','TER','3212','1979-05-22', '911', 'nurse');
-INSERT INTO EMPLOYEE VALUES ('B','OOT','2345','1979-05-22', '911', 'receptionist');
-INSERT INTO EMPLOYEE VALUES ('ilo','SCOOT','3312','1979-05-22', '911', 'receptionist');
+INSERT INTO EMPLOYEE VALUES ('Mary','OGallagher','1234','1979-05-22', '972-454-4545', 'doctor');
+INSERT INTO EMPLOYEE VALUES ('Edward','Sproat','3456','1979-05-22', '843-344-3244', 'doctor');
 
-INSERT INTO PATIENT VALUES ('Bi','gers',null,'1979-05-22', '911');
-INSERT INTO PATIENT VALUES ('Bo','Rers',null, '1979-05-22', '911');
-INSERT INTO PATIENT VALUES ('Bi','gers',null,'1979-05-22', '911');
+INSERT INTO EMPLOYEE VALUES ('Milo','Derek','5676','1979-05-22', '349-341-9981', 'nurse');
+INSERT INTO EMPLOYEE VALUES ('Richard','Miller','3212','1979-05-22', '233-565-5911', 'nurse');
 
-INSERT INTO PATIENT VALUES ('Edward','Sproat','420','1979-05-22', '911');
-INSERT INTO PATIENT VALUES ('Dylkan','Faj','69','1979-05-22', '911');
+INSERT INTO EMPLOYEE VALUES ('Christian','Martinez','2345','1979-05-22', '911-243-2332', 'receptionist');
 
-INSERT INTO APPOINTMENT VALUES ('a', 'dd', '69', '123456779' , '123456789',null, '2017-08-15 19:30:10', '2017-09-15 19:30:10', '69', 'herpes', null);
-INSERT INTO APPOINTMENT VALUES ('b', 'dssdfsf', '420', '123456779' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes',null);
-INSERT INTO APPOINTMENT VALUES ('c', 'hello','0100332', '10000000' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes', null);
-INSERT INTO APPOINTMENT VALUES ('d', 'uwu', '690', '123456779' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes', null);
-INSERT INTO APPOINTMENT VALUES ('d', 'tbh', '5320010', '123456779' , '123456789',null, '2017-08-15 19:30:10', null, '69', 'herpes', null);
+INSERT INTO PATIENT VALUES ('Amanda','Cooper','112345678','1969-08-30', '231988');
+INSERT INTO PATIENT VALUES ('James','Marler',null,'1997-11-07', '231988');
+INSERT INTO PATIENT VALUES ('Andrew','Hansen',null,'1997-12-01', '038834');
+INSERT INTO PATIENT VALUES ('Kristen','Wood',null,'2000-01-12', '3242343');
+INSERT INTO PATIENT VALUES ('Blake','Willaims',null,'1999-05-22', '2312312');
+
+INSERT INTO APPOINTMENT VALUES ('Amanda', 'Cooper','223456789', '112345678', null , null, '2017-08-15 19:30:10', '2017-09-15 19:30:10', '1', 'Chest Pain', null);
+INSERT INTO APPOINTMENT VALUES ('James', 'Marler', '223456790','112345679', null, null, '2017-08-15 19:30:10', null, '1', 'flu like symptoms',null);
+INSERT INTO APPOINTMENT VALUES ('Andrew', 'Hansen','223456791', '112345680' , null, null, '2017-08-15 19:30:10', null, '1', 'stomach pain', null);
+INSERT INTO APPOINTMENT VALUES ('Kristen', 'Wood', '223456792','112345681', null, null, '2017-08-15 19:30:10', null, '2', 'sore throat', null);
+INSERT INTO APPOINTMENT VALUES ('Blake', 'Williams','223456793','112345681',  null,null, '2017-08-15 19:30:10', null, '2', 'back pain', null);
 
 INSERT INTO DIAGNOSIS (description) VALUES
     ('Acid reflux'),
@@ -179,13 +179,53 @@ INSERT INTO DIAGNOSIS (description) VALUES
     ('urinary tract infection'),
     ('Whooping cough');
 
-
-
-INSERT INTO MEDICATION (diagnosis_code, description) VALUES ('1', 'xZANTAC');
-INSERT INTO MEDICATION (diagnosis_code, description) VALUES ('2', 'xxZANTAC');
-INSERT INTO MEDICATION (diagnosis_code, description) VALUES ('3', 'xxxZANTAC');
-INSERT INTO MEDICATION (diagnosis_code, description) VALUES ('4', 'xxxxZANTAC');
-INSERT INTO MEDICATION (diagnosis_code, description) VALUES ('5', 'xxxxxZANTAC');
+INSERT INTO MEDICATION (description) VALUES
+	('ACETYLCYSTEINE'),
+	('ADENOSINE'),
+	('ALDACTAZIDE'),
+	('ALDACTONE'),
+	('ALFENTANIL INJECTION'),
+	('AMMONIUM CHLORIDE'),
+	('Ampicillin Sodium'),
+	('ARGATROBAN'),
+	('AROMASIN'),
+	('ENALAPRILAT'),
+	('ESTRING'),
+	('GLYNASE PRESTAB'),
+	('HEPARIN SODIUM INJECTION'),
+	('HETASTARCH'),
+	('HEXTEND'),
+	('HUMATIN'),
+	('MILRINONE LACTATE'),
+	('MINIPRESS'),
+	('PLEGISOL'),
+	('POTASSIUM ACETATE'),
+	('POTASSIUM PHOSPHATES'),
+	('PRECEDEX'),
+	('SUFENTANIL CITRATE'),
+	('SYNAREL'),
+	('TALZENNA'),
+	('TAPAZOLE'),
+	('TESTOSTERONE CYPIONATE'),
+	('TOBRAMYCIN'),
+	('TOPOTECAN'),
+	('TORISEL'),
+	('TOVIAZ'),
+	('TRECATOR'),
+	('TROBICIN'),
+	('TRUMENBA'),
+	('TYGACIL'),
+	('UNASYN'),
+	('Vancomycin Hydrochloride'),
+	('VIROPTIC'),
+	('XALATAN'),
+	('XANAX'),
+	('XELJANZ'),
+	('ZARONTIN'),
+	('ZOLEDRONIC ACID'),
+	('ZOLOFT'),
+	('ZOSYN'),
+	('ZYVOX');
 
 
 

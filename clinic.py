@@ -65,6 +65,7 @@ def receptionist_form():
 
 #not done
 def doctor_form_window():
+    
 
     # All the stuff inside your window. This is the PSG magic code compactor...
     layout = [  [sg.Text('Dr blah blah blah examining blah blah')],
@@ -116,7 +117,8 @@ def doctor_schedule():
     headings = ["appointmentID", "fname", "lname", "start_time", "room", "reason_for_visit", "Nurse's Notes"]
 
 
-    schedule = "SELECT a.appointmentID, a.fname, a.lname, a.start_time, a.room, a.reason_for_visit, a.nurse_notes FROM APPOINTMENT a INNER JOIN DOCTOR d ON employeeID=" + ID + " AND d.employeeID=a.doctorID WHERE end_time is NULL;"
+    schedule = "SELECT a.appointmentID, a.fname, a.lname, a.start_time, a.room, a.reason_for_visit, a.nurse_notes \
+        FROM APPOINTMENT a INNER JOIN DOCTOR d ON employeeID=" + ID + " AND d.employeeID=a.doctorID WHERE end_time is NULL;"
     db.commit()
 
     cursor.execute(schedule)
@@ -158,7 +160,8 @@ def nurse_schedule():
 
     headings = ["appointmentID", "fname", "lname", "start_time", "room", "reason_for_visit"]
 
-    schedule = "SELECT a.appointmentID, a.fname, a.lname, a.start_time, a.room, a.reason_for_visit FROM APPOINTMENT a INNER JOIN NURSE n ON employeeID=" + ID + " AND n.room=a.room WHERE end_time is NULL AND a.doctorID is NULL;"
+    schedule = "SELECT a.appointmentID, a.fname, a.lname, a.start_time, a.room, a.reason_for_visit \
+        FROM APPOINTMENT a INNER JOIN NURSE n ON employeeID=" + ID + " AND n.room=a.room WHERE end_time is NULL AND a.doctorID is NULL;"
 
     cursor.execute(schedule)
     myResult = cursor.fetchall()
@@ -204,10 +207,11 @@ def nurse_form_window():
     # All the stuff inside your window. This is the PSG magic code compactor...
     layout = [  
         [sg.Text("Appointment ID"), sg.Input(key='apptID'), sg.Text(size=(40,1))],
-        [sg.Text("Assign Doctor"), sg.Combo(doctor_array),sg.Input(key='assignedDoctor')],
-        [sg.Text("Height"),  sg.Input(key='apptID'), sg.Text(size=(40,1))],
-        [sg.Text("Weight"),  sg.Input(key='apptID'),sg.Text(size=(40,1))],
-        [sg.Text("Blood Pressure"),  sg.Input(key='apptID'),sg.Text(size=(40,1))],
+        [sg.Text("Assign Doctor"), sg.Combo(doctor_array), sg.Input(key='dr')],
+        [sg.Text("Height"),  sg.Combo(['4ft', '5ft','6ft','7ft']), sg.Combo(['0"', '1"','2"','3"','4"','5"','6"','7"','8"','9"', '10"','11"'])],
+        [sg.Text("Weight (pounds)"),  sg.Slider(range=(0, 1000), orientation='horizontal', default_value=150, size=(40,25))],
+        [sg.Text("Blood Pressure (Systolic)"),  sg.Slider(range=(50, 200), orientation='vertical', default_value=100, size=(10,20)), \
+            sg.Text("(Diastolic)"), sg.Slider(range=(50, 200), orientation='vertical', default_value=100, size=(10,20))],
         [sg.Text("Nurse's Notes"), sg.Input(key='notes'), sg.Text(size=(40,1))],
         [sg.Button('End Appointment')]
     ]
@@ -221,7 +225,8 @@ def nurse_form_window():
             break
 
         if event == 'End Appointment':
-            end_visit = "UPDATE APPOINTMENT SET doctorID = " + str(values['assignedDoctor']) +", nurse_notes = '" + str(values['notes']) + "' WHERE appointmentID = " + str(values['apptID']) + ";"
+            end_visit = "UPDATE APPOINTMENT SET doctorID = '" + str(values['dr']) + "' \
+                , nurse_notes = '" + str(values['notes']) + "' WHERE appointmentID = " + str(values['apptID']) + ";"
             cursor.execute(end_visit)
             db.commit()
             nwindow.close()
@@ -236,7 +241,7 @@ def patient_history():
 
     headings = ["AppointmentID", "Date", "Diagnosis", "Medication", "Dr's Notes"]
 
-    history = "SELECT a.patientID, a.start_time, di.description, m.description, ad.doctor_notes  \
+    history = "SELECT a.appointmentID, a.start_time, di.description, m.description, ad.doctor_notes  \
         FROM APPOINTMENT a \
         JOIN APPOINTMENT_DIAGNOSIS ad \
 	        ON a.appointmentID = ad.appointmentID \
@@ -320,27 +325,27 @@ while True:
 
     if event == 'Enter' and values['PID'] == '':
         employee_query = "select job_title from EMPLOYEE WHERE employeeID = " + str(values['EID']) + ";"
-        try:
-            cursor.execute(employee_query)
-            myResult = cursor.fetchone()
+        cursor.execute(employee_query)
+        myResult = cursor.fetchone()
 
-            ID = values['EID']
+        ID = values['EID']
 
+
+        while myResult:
             if myResult[0] == "doctor":
                 doctor_schedule()
-                print("GOOD")
+                break
             elif myResult[0] == "nurse":
                 nurse_schedule()
-                print("nurse")
+                break
             elif myResult[0] == "receptionist":
                 receptionist_form()
-                print("r")
+                break
             else: 
                 print("fail")
             #cursor.close()
-        finally:
-            cursor.close()
-""""
+
+
     if values['PID'] != '':
         patient_query = "select fname, lname from PATIENT WHERE patientID=" + str(values['PID']) + ";"
         cursor.execute(patient_query)
@@ -348,14 +353,10 @@ while True:
 
         ID = values['PID']
 
-        if myResult:
-            print(myResult)
-            window['-OUTPUT-'].update('Welcome Valued Patient: ' + str(myResult))
-            #patientport goes under
+        while myResult:
             patient_history()
-        else: 
-            window['-OUTPUT-'].update('Invalid Login')
-"""
+            break
+
 
 # Finish up by removing from the screen
 window.close()
