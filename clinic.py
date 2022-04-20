@@ -70,8 +70,9 @@ def doctor_form_window():
         [sg.Text("Doctor Notes"), sg.Input(key='drNotes', do_not_clear=False), sg.Text(size=(40,1))],
         [sg.Text("Diagnosis Code"), sg.Input(key='dcode', do_not_clear=False), sg.Text(size=(40,1))],
         [sg.Text("Medication Code"), sg.Input(key='meds', do_not_clear=False), sg.Text(size=(40,1))],
+        [sg.Button('Patient History')],
         [sg.Button('Add Diagnosis/Medication'),sg.Button('Submit')],
-        [sg.Text("Dr Signature"), sg.Checkbox('')]
+        [sg.Text("Dr Signature"), sg.Checkbox('')],
     ]
 
     dry_window = sg.Window('Doctor_Form', layout, size=(500,600))
@@ -86,7 +87,6 @@ def doctor_form_window():
             db.commit()
             dry_window.close()
             doctor_schedule()
-            popup()
         if event == 'Add Diagnosis/Medication':
 
             
@@ -203,7 +203,7 @@ def nurse_form_window():
         [sg.Text("Blood Pressure (Systolic)"),  sg.Slider(range=(50, 200), orientation='vertical', default_value=100, size=(10,20)), \
             sg.Text("(Diastolic)"), sg.Slider(range=(50, 200), orientation='vertical', default_value=100, size=(10,20))],
         [sg.Text("Nurse's Notes"), sg.Input(key='notes'), sg.Text(size=(40,1))],
-        [sg.Button("View Patient Record"), sg.Button('End Appointment')]
+        [sg.Button("View Patient Record"), sg.Button('Ready For Doctor')]
     ]
 
     # Create the Window
@@ -214,7 +214,7 @@ def nurse_form_window():
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
 
-        if event == 'End Appointment':
+        if event == 'Ready For Doctor':
             end_visit = "UPDATE APPOINTMENT SET doctorID = '" + str(values['dr']) + "' \
                 , nurse_notes = '" + str(values['notes']) + "' WHERE appointmentID = " + str(values['apptID']) + ";"
             cursor.execute(end_visit)
