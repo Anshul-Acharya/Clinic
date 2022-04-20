@@ -76,6 +76,7 @@ DROP TABLE IF EXISTS APPOINTMENT_DIAGNOSIS;
 CREATE TABLE APPOINTMENT_DIAGNOSIS(
   appointmentID     char(9),
   appt_diagnosis_code     INT(9) not null AUTO_INCREMENT,
+  diagnosisID INT(9),
   doctor_notes char(50),
 
   CONSTRAINT pk_appt_diagnosis primary key (appt_diagnosis_code)
@@ -239,4 +240,3 @@ JOIN MEDICATION m
 	ON m.medication_code = adm.medication_code 
 JOIN DIAGNOSIS di
 	on adm.diagnosis_code = di.diagnosis_code;
-

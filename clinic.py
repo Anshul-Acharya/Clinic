@@ -12,14 +12,9 @@ db = mysql.connector.connect(
 
 cursor = db.cursor()
 ID = 0
-i = 0
 
-#mycursor.execute("select fname from DOCTOR WHERE employeeID=123456799")
-
-#sg.change_look_and_feel('DarkTeal9')
 sg.change_look_and_feel('GreenMono')
 
-appointmentID = 0
 
 def popup():
     sg.popup('SUBMITTED')
@@ -34,7 +29,7 @@ def receptionist_form():
         [sg.Text("Room"), sg.Input(key='room'), sg.Text(size=(40,2))],
         [sg.Text("Current Time"), sg.Input(key='startTime'), sg.Text(size=(40,2))],
         [sg.Text("Reason For Visit"), sg.Input(key='reason'), sg.Text(size=(40,2))],
-        [sg.Button('SUBMIT')]
+        [sg.Button('SUBMIT'), sg.Button("Add a Returning Patient")]
     ]
 
     # Create the Window
@@ -69,8 +64,7 @@ def receptionist_form():
 def doctor_form_window():
     
 
-    # All the stuff inside your window. This is the PSG magic code compactor...
-    layout = [  [sg.Text('Dr blah blah blah examining blah blah')],
+    layout = [  
         [sg.Text("Appointment ID"), sg.Input(key='apptID'), sg.Text(size=(40,1))],
         [sg.Text("End Time"), sg.Input(key='end_time'), sg.Text(size=(40,1))],
         [sg.Text("Doctor Notes"), sg.Input(key='drNotes', do_not_clear=False), sg.Text(size=(40,1))],
@@ -80,9 +74,7 @@ def doctor_form_window():
         [sg.Text("Dr Signature"), sg.Checkbox('')]
     ]
 
-    # Create the Window
     dry_window = sg.Window('Doctor_Form', layout, size=(500,600))
-    # Event Loop to process "events"
     while True:             
         event, values = dry_window.read()
         if event == sg.WINDOW_CLOSED:
@@ -94,24 +86,19 @@ def doctor_form_window():
             db.commit()
             dry_window.close()
             doctor_schedule()
+            popup()
         if event == 'Add Diagnosis/Medication':
 
             
-            insert_diagnosis = "INSERT INTO APPOINTMENT_DIAGNOSIS (appointmentID, doctor_notes)\
-                VALUES ('%s', '%s')" %\
-                (str(values['apptID']), str(values['drNotes']))
+            insert_diagnosis = "INSERT INTO APPOINTMENT_DIAGNOSIS (appointmentID, diagnosisID, doctor_notes)\
+                VALUES ('%s', '%s', '%s')" %\
+                (str(values['apptID']), str(values['dcode']), str(values['drNotes']))
 
             cursor.execute(insert_diagnosis)
             
-            sis = "SELECT max(appt_diagnosis_code) FROM APPOINTMENT_DIAGNOSIS;"
-            cursor.execute(sis)
-            myResult = cursor.fetchone()
-
-
-
             insert_diagnosis_med = "INSERT INTO APPOINTMENT_DIAGNOSIS_MEDICATION (appointmentID, diagnosis_code, medication_code)\
                 VALUES ('%s', '%s', '%s')" %\
-                (str(values['apptID']), myResult[0], str(values['meds']))
+                (str(values['apptID']), str(values['dcode']), str(values['meds']))
             
             cursor.execute(insert_diagnosis_med)
             db.commit()
@@ -145,7 +132,7 @@ def doctor_schedule():
             num_rows=10,
             key='TABLE',
             row_height=35)],
-        [sg.Button('Begin Appointment')]
+        [sg.Button('Begin Appointment'), sg.Combo(['Appointment ID', 'Check-In'])]
     ]
 
     ds_window = sg.Window("Doctor Schedule", layout)
@@ -159,8 +146,6 @@ def doctor_schedule():
         ds_window.close()
 
 def nurse_schedule():
-
-    print(ID)
 
     schedule_array = [[]]
 
@@ -218,7 +203,7 @@ def nurse_form_window():
         [sg.Text("Blood Pressure (Systolic)"),  sg.Slider(range=(50, 200), orientation='vertical', default_value=100, size=(10,20)), \
             sg.Text("(Diastolic)"), sg.Slider(range=(50, 200), orientation='vertical', default_value=100, size=(10,20))],
         [sg.Text("Nurse's Notes"), sg.Input(key='notes'), sg.Text(size=(40,1))],
-        [sg.Button('End Appointment')]
+        [sg.Button("View Patient Record"), sg.Button('End Appointment')]
     ]
 
     # Create the Window
@@ -250,11 +235,11 @@ def patient_history():
         JOIN APPOINTMENT_DIAGNOSIS ad \
 	        ON a.appointmentID = ad.appointmentID \
         JOIN APPOINTMENT_DIAGNOSIS_MEDICATION adm \
-	        ON ad.appointmentID = adm.appointmentID AND ad.appt_diagnosis_code = adm.diagnosis_code \
+	        ON ad.appointmentID = adm.appointmentID AND ad.diagnosisID = adm.diagnosis_code \
         JOIN MEDICATION m \
 	        ON m.medication_code = adm.medication_code \
         JOIN DIAGNOSIS di \
-	        on adm.diagnosis_code = di.diagnosis_code \
+	        ON adm.diagnosis_code = di.diagnosis_code \
         WHERE " + ID +  " = a.patientID;"
 
     cursor.execute(history)
