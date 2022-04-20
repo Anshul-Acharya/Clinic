@@ -12,6 +12,7 @@ db = mysql.connector.connect(
 
 cursor = db.cursor()
 ID = 0
+i = 0
 
 #mycursor.execute("select fname from DOCTOR WHERE employeeID=123456799")
 
@@ -43,7 +44,7 @@ def receptionist_form():
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
-        print("submitted")
+
         insert_patient = "INSERT INTO PATIENT (fname, lname, insuranceID)\
             VALUES ('%s', '%s', '%s')" %\
            (str(values['patientFName']), str(values['patientLName']), str(values['insuranceID']))
@@ -57,6 +58,7 @@ def receptionist_form():
             VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" %\
            (str(values['patientFName']), str(values['patientLName']), str(myResult[0]), str(values['startTime']), str(values['room']), str(values['reason']))
         cursor.execute(insert_appt)
+
 
         db.commit()
         window.close()
@@ -100,10 +102,16 @@ def doctor_form_window():
                 (str(values['apptID']), str(values['drNotes']))
 
             cursor.execute(insert_diagnosis)
+            
+            sis = "SELECT max(appt_diagnosis_code) FROM APPOINTMENT_DIAGNOSIS;"
+            cursor.execute(sis)
+            myResult = cursor.fetchone()
+
+
 
             insert_diagnosis_med = "INSERT INTO APPOINTMENT_DIAGNOSIS_MEDICATION (appointmentID, diagnosis_code, medication_code)\
                 VALUES ('%s', '%s', '%s')" %\
-                (str(values['apptID']), str(values['dcode']), str(values['meds']))
+                (str(values['apptID']), myResult[0], str(values['meds']))
             
             cursor.execute(insert_diagnosis_med)
             db.commit()
@@ -126,8 +134,6 @@ def doctor_schedule():
 
     for i in myResult:
         schedule_array.append(list(i))
-
-    print("shit")
 
     layout = [
         [sg.Table(values=schedule_array,
@@ -193,7 +199,6 @@ def nurse_schedule():
         window.close()
 
 def nurse_form_window():
-    print("form") 
     doctor_array = [[]]
 
     doctors = "SELECT fname, lname, employeeID FROM EMPLOYEE WHERE job_title = 'doctor';"
@@ -235,11 +240,10 @@ def nurse_form_window():
 
 def patient_history():
 
-    print(str(ID))
 
     history_array = [[]]
 
-    headings = ["AppointmentID", "Date", "Diagnosis", "Medication", "Dr's Notes"]
+    headings = ["AppointmentID", "Time", "Diagnosis", "Medication", "Dr's Notes"]
 
     history = "SELECT a.appointmentID, a.start_time, di.description, m.description, ad.doctor_notes  \
         FROM APPOINTMENT a \
@@ -258,8 +262,6 @@ def patient_history():
 
     for i in myResult:
         history_array.append(list(i))
-
-    print("shit")
 
     layout = [
         [sg.Table(values=history_array,
@@ -360,10 +362,6 @@ while True:
 
 # Finish up by removing from the screen
 window.close()
-
-
-
-
 
 
 
