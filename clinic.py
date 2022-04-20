@@ -276,13 +276,17 @@ def patient_history():
 
 
 employee_column = [
+    [sg.Text("", size=(0,5))],
     [sg.Text("Login As Employee")],
     [sg.Input(key='EID', do_not_clear=False)],
+    [sg.Text("", size=(0,5))],
 ]
 
 patient_column = [
+    [sg.Text("", size=(0,5))],
     [sg.Text("Enter Patient Portal")],
-    [sg.Input(key='PID', do_not_clear=False)]
+    [sg.Input(key='PID', do_not_clear=False)],
+    [sg.Text("", size=(0,5))],
 ]
 
 button_column = [
@@ -296,11 +300,11 @@ layout = [
         sg.Column(employee_column),
         sg.VSeperator(),
         sg.Column(patient_column)
-    ], [sg.VPush(), sg.Column(button_column, element_justification='c'), sg.Push()] 
+    ], [sg.Column(button_column, element_justification='l'), sg.Push()] 
 ]
 
 # Create the window
-window = sg.Window('LOGIN', layout, margins=(20,100))
+window = sg.Window('LOGIN', layout, margins=(20,20))
 
 # Display and interact with the Window using an Event Loop
 while True:
