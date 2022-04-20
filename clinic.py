@@ -68,14 +68,14 @@ def doctor_form_window():
         [sg.Text("Appointment ID"), sg.Input(key='apptID'), sg.Text(size=(40,1))],
         [sg.Text("End Time"), sg.Input(key='end_time'), sg.Text(size=(40,1))],
         [sg.Text("Doctor Notes"), sg.Input(key='drNotes', do_not_clear=False), sg.Text(size=(40,1))],
-        [sg.Text("Diagnosis Code"), sg.Input(key='dcode', do_not_clear=False), sg.Text(size=(40,1))],
-        [sg.Text("Medication Code"), sg.Input(key='meds', do_not_clear=False), sg.Text(size=(40,1))],
+        [sg.Text("Diagnosis Code"), sg.Input(key='dcode', do_not_clear=False), sg.Text(size=(0,1)), sg.Button("Diagnosis Table")],
+        [sg.Text("Medication Code"), sg.Input(key='meds', do_not_clear=False), sg.Text(size=(0,1)), sg.Button("Medication Table")],
         [sg.Button('Patient History')],
         [sg.Button('Add Diagnosis/Medication'),sg.Button('Submit')],
         [sg.Text("Dr Signature"), sg.Checkbox('')],
     ]
 
-    dry_window = sg.Window('Doctor_Form', layout, size=(500,600))
+    dry_window = sg.Window('Doctor_Form', layout, margins=(0,0))
     while True:             
         event, values = dry_window.read()
         if event == sg.WINDOW_CLOSED:
@@ -89,7 +89,6 @@ def doctor_form_window():
             doctor_schedule()
         if event == 'Add Diagnosis/Medication':
 
-            
             insert_diagnosis = "INSERT INTO APPOINTMENT_DIAGNOSIS (appointmentID, diagnosisID, doctor_notes)\
                 VALUES ('%s', '%s', '%s')" %\
                 (str(values['apptID']), str(values['dcode']), str(values['drNotes']))
@@ -103,7 +102,11 @@ def doctor_form_window():
             cursor.execute(insert_diagnosis_med)
             db.commit()
 
+        if event == 'Medication Table':
+            medicines()
         
+        if event == 'Diagnosis Table':
+            diagnosiss()
 
 def doctor_schedule():
 
@@ -274,6 +277,82 @@ def patient_history():
             print("view and pay bill")
             popup()
 
+def medicines():
+
+    medicine_array = [[]]
+
+    headings = ["Medicine ID", "Medicine"]
+
+
+    meds = "SELECT medication_code, description \
+        FROM MEDICATION;"
+    db.commit()
+
+    cursor.execute(meds)
+    myResult = cursor.fetchall()
+
+    for i in myResult:
+        medicine_array.append(list(i))
+
+    layout = [
+        [sg.Table(values=medicine_array,
+            headings=headings, 
+            max_col_width=50,
+            auto_size_columns=True,
+            display_row_numbers=False,
+            justification='right',
+            num_rows=10,
+            key='TABLE',
+            row_height=35)],
+        [sg.Button('Quit')]
+    ]
+
+    ds_window = sg.Window("Medicines", layout)
+
+    while True:
+        event, values = ds_window.read()
+        # See if user wants to quit or window was closed
+        if event == sg.WINDOW_CLOSED or event == 'Quit':
+            break
+
+
+def diagnosiss():
+
+    d_array = [[]]
+
+    headings = ["Diagnosis ID", "Diagnosis"]
+
+
+    dig = "SELECT diagnosis_code, description \
+        FROM DIAGNOSIS;"
+    db.commit()
+
+    cursor.execute(dig)
+    myResult = cursor.fetchall()
+
+    for i in myResult:
+        d_array.append(list(i))
+
+    layout = [
+        [sg.Table(values=d_array,
+            headings=headings, 
+            max_col_width=50,
+            auto_size_columns=True,
+            display_row_numbers=False,
+            justification='right',
+            num_rows=10,
+            key='TABLE',
+            row_height=35)],
+        [sg.Button('Quit')]
+    ]
+
+    ds_window = sg.Window("Diagnosis", layout)
+
+    while True:
+        event, values = ds_window.read()
+        # See if user wants to quit or window was closed
+        if event == sg.WINDOW_CLOSED or event == 'Quit':
+            break
 
 employee_column = [
     [sg.Text("", size=(0,5))],
