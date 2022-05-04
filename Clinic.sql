@@ -7,7 +7,6 @@ USE Clinic;
 DROP TABLE IF EXISTS EMPLOYEE;
 CREATE TABLE EMPLOYEE (
 
-
   fname    varchar(15) not null,
   lname    varchar(15) not null,
   employeeID     INT(9) not null AUTO_INCREMENT,
@@ -136,7 +135,7 @@ INSERT INTO APPOINTMENT VALUES ('Amanda', 'Cooper','223456789', '112345678', nul
 INSERT INTO APPOINTMENT VALUES ('James', 'Marler', '223456790','112345679', null, null, '2017-08-15 19:30:10', null, '1', 'flu like symptoms',null);
 INSERT INTO APPOINTMENT VALUES ('Andrew', 'Hansen','223456791', '112345680' , null, null, '2017-08-15 19:30:10', null, '1', 'stomach pain', null);
 INSERT INTO APPOINTMENT VALUES ('Kristen', 'Wood', '223456792','112345681', null, null, '2017-08-15 19:30:10', null, '2', 'sore throat', null);
-INSERT INTO APPOINTMENT VALUES ('Blake', 'Williams','223456793','112345681',  null,null, '2017-08-15 19:30:10', null, '2', 'back pain', null);
+INSERT INTO APPOINTMENT VALUES ('Blake', 'Williams','223456793','112345682',  null,null, '2017-08-15 19:30:10', null, '2', 'back pain', null);
 
 INSERT INTO DIAGNOSIS (description) VALUES
     ('Acid reflux'),
